@@ -1,3 +1,11 @@
+/**
+*   Druhy projekt do IZP, iteracni vypocty.
+*   Vytvoril: Tomas Kukan, xkukan00
+*   Verze: 1.0
+*
+*   Popis programu a jeho funkce: https://wis.fit.vutbr.cz/FIT/st/cwk.php?title=IZP:Projekt2&csid=623120&id=11499
+**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
