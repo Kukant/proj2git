@@ -1,0 +1,515 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#define WRONG_ARGS 1
+#define NEGATIVE_NUM 2
+#define NOT_NUM 3
+#define NOT_POSITIVE 4
+#define IS_NEGATIVE 5
+#define NEG_NOT_WHOLE 6
+
+/*
+*FUNKCI PROTOTYPY FUNKCI
+*/
+
+double taylor_log(double x, unsigned int n);
+double cfrac_log(double x, unsigned int n);
+double taylor_pow(double x, double y, unsigned int n);
+double taylorcf_pow(double x, double y, unsigned int n);
+double my_log(double x);
+double my_pow(double x, double y);
+
+int is_positive(double number);
+int is_number(char *s);
+void error(int err_num);
+int is_int(char *string);
+int num_comp(double a, double b, double c);
+
+int main(int argc, char *argv[])
+{
+    double number, exp;
+    unsigned int iteration_quantity;
+    int is_log = 0, is_logx = 0, is_powx = 0;
+
+    /*Prace s argumenty programu.*/
+    if(argc < 1)
+    {
+        error(WRONG_ARGS);
+        return 1;
+    }
+
+    if (strcmp(argv[1], "--log") == 0 || strcmp(argv[1], "--logx") == 0) /*testovani pokud je na vstupu --log*/
+    {
+        if(argc != 4)
+        {
+            error(WRONG_ARGS);
+            return 1;
+        }
+
+        is_log = 1;
+        if(strcmp(argv[1], "--logx") == 0)
+            is_logx = 1;
+
+        if (is_number(argv[2]) && is_positive(atof(argv[2])))
+            number = atof(argv[2]);
+
+        else
+        {
+            if (!is_positive(atof(argv[2])))
+                error(NOT_POSITIVE);
+            return 1;
+        }
+
+        if(!is_number(argv[3]))
+        {
+            error(WRONG_ARGS);
+            return 1;
+        }
+
+        iteration_quantity = atof(argv[3]);
+
+        if(!is_positive(iteration_quantity))
+        {
+            error(IS_NEGATIVE);
+            return 1;
+        }
+
+    }
+
+    else if (strcmp(argv[1], "--pow") == 0 || strcmp(argv[1], "--powx") == 0) /*testovani pokud je na vstupu --pow*/
+    {
+        if(argc != 5)
+        {
+            error(WRONG_ARGS);
+            return 1;
+        }
+
+        if(strcmp(argv[1], "--powx") == 0)
+            is_powx = 1;
+
+        if(!is_number(argv[2]))
+        {
+            error(WRONG_ARGS);
+            return 1;
+        }
+
+        number = atof(argv[2]);
+
+        if(!is_number(argv[3]))
+        {
+            error(IS_NEGATIVE);
+            return 1;
+        }
+
+        exp = atof(argv[3]);
+
+        if(!is_number(argv[4]))
+        {
+            error(WRONG_ARGS);
+            return 1;
+        }
+
+        iteration_quantity = atof(argv[4]);
+
+        if(!is_positive(iteration_quantity))
+        {
+            error(IS_NEGATIVE);
+            return 1;
+        }
+
+
+
+    }
+
+    else /*Pokud neni --pow ani --log */
+    {
+        error(WRONG_ARGS);
+        return 1;
+    }
+
+    if (is_log)
+    {
+        printf("       log(%g) = %.12g\n", number, log(number));
+        printf(" cfrac_log(%g) = %.12g\n", number, cfrac_log(number, iteration_quantity));
+        printf("taylor_log(%g) = %.12g\n", number, taylor_log(number,iteration_quantity));
+        if(is_logx)
+            printf("    my_log(%g) = %.7e\n", number, my_log(number));
+    }
+    else
+    {
+        printf("         pow(%g,%g) = %.12g\n", number, exp, pow(number, exp));
+        printf("  taylor_pow(%g,%g) = %.12g\n", number, exp, taylor_pow(number, exp, iteration_quantity));
+        printf("taylorcf_pow(%g,%g) = %.12g\n", number, exp, taylorcf_pow(number, exp, iteration_quantity));
+        if(is_powx)
+            printf("      my_pow(%g,%g) = %.7e\n", number, exp, my_pow(number, exp));
+    }
+
+    return 0;
+}
+
+/*
+*DEFINICE FUNKCI
+*/
+
+/*
+*   Funkce pro vypocet logaritmu pomoci taylotova polynomu.
+*   prvni agument je samotne cislo a druhy je pocet iteraci.
+*   Jeji navratova hodnota je vysledek.
+*/
+double taylor_log(double x, unsigned int n)
+{
+    /* 1 - X = A => X = 1 - A, KDE /A JE ZAKLAD*/
+
+    if(x == INFINITY)
+        return INFINITY;
+
+    double ans = 0;
+    double a = 1 - x;
+    double upper = 1;
+
+    if (x > 0 && x < 1)
+        for (unsigned int i = 1; n >= i ; i++) /*cyklus pro urceny pocet iteraci*/
+        {
+            upper *= a;
+            if(isinf(upper))
+            	return INFINITY;
+            ans = ans - upper / i;
+        }
+    else
+        for (unsigned int i = 1; n >= i ; i++) /*cyklus pro urceny pocet iteraci*/
+        {
+            upper *= (x - 1) / x;
+            if(isinf(upper))
+            	return INFINITY;
+            ans += upper / i;
+        }
+
+
+    return ans;
+
+}
+
+/*
+*   Funkce pro vypocet logaritmu pomoci zretezeneho zlomku.
+*   prvni agument je samotne cislo a druhy je pocet iteraci.
+*   Jeji navratova hodnota je vysledek.
+*/
+double cfrac_log(double x, unsigned int n)
+{
+    /*(1+z)/(1-z) = x => z = (x-1)/(x+1)*/
+
+    if(x == INFINITY)
+        return INFINITY;
+
+    double z = (x - 1)/(x + 1);
+    double ans = 1;
+
+    for (; n > 0 ;n--) /*cyklus pro urceny pocet iteraci*/
+    {
+        ans = (2*n - 1) - ((n*n*z*z) / ans);
+    }
+
+    return (2*z) / ans;
+
+}
+
+
+/*
+*   Funkce pocitajici mocninu cisla x s exponentem
+*   y. Pocita ji v n iteracich a pouziva tayloruv
+*   polynom pro vypocet logaritmu.
+*/
+double taylor_pow(double x, double y, unsigned int n)
+{
+
+    if(x == 0)
+        return 0;
+
+    if(x == INFINITY)
+        return INFINITY;
+
+    if(x < 0)
+        return NAN;
+
+    double ans = 1,fac_num = 1;
+    double log_x = taylor_log(x, n);
+    double upper = 1;
+
+    for (double i = 1; i < n; i++)
+    {
+        fac_num *= i;
+        upper *= y * log_x;
+        ans += upper / fac_num;
+	if(isinf(upper))
+            return INFINITY;
+    }
+    return  ans;
+
+}
+
+/*
+*   Funkce pocitajici mocninu cisla x s exponentem
+*   y. Pocita ji v n iteracich a pouziva zretezeny
+*   zlomek pro vypocet logaritmu.
+*/
+double taylorcf_pow(double x, double y, unsigned int n)
+{
+    double ans = 1, fac_num = 1;
+    double log_x = cfrac_log(x, n), upper = 1;
+
+    if(x == 0)
+        return 0;
+
+    if(x == INFINITY)
+        return INFINITY;
+
+    if(x < 0)
+        return NAN;
+
+    for (unsigned int i = 1; i < n; i++)
+    {
+        fac_num *= i;
+        upper *= y * log_x;
+        ans +=  upper / fac_num;
+	if(isinf(upper))
+            return INFINITY;
+
+    }
+    return ans;
+}
+
+/*
+*   Jestlize je cislo kladne vraci 1 jinak 0;
+*/
+int is_positive(double number)
+{
+    return number > 0 ? 1 : 0;
+}
+
+/*
+*   Otestuje retezec zdali je cislo. Vrati 1 pokud ano, 0 pokud ne.
+*/
+int is_number(char *s)
+{
+    char *endptr;
+    strtod(s, &endptr);
+
+    if(*endptr != '\0')
+    {
+        error(NOT_NUM);
+        return 0;
+    }
+
+    else
+        return 1;
+}
+
+/*
+*   Funkce pro vypis chyboveho hlaseni.
+*/
+void error(int err_num)
+{
+    switch(err_num)
+    {
+        case WRONG_ARGS:
+            fprintf(stderr,"Chybne argumenty, ukonceni programu.\n");
+            break;
+
+        case NEGATIVE_NUM:
+            fprintf(stderr,"Argument nemuze byt zaporny.\n");
+            break;
+
+        case NOT_NUM:
+            fprintf(stderr,"Argument neni cislo.\n");
+            break;
+
+        case NOT_POSITIVE:
+            fprintf(stderr,"Argument X neni kladne cislo.\n");
+            break;
+
+        case IS_NEGATIVE:
+            fprintf(stderr,"Argument pocet iteraci neni kladne cislo.\n");
+            break;
+
+        case NEG_NOT_WHOLE:
+            fprintf(stderr, "Kdyz je zaklad zaporny, exponent musi byt cele cislo!\n");
+            break;
+    }
+
+    return ;
+}
+
+/*
+*   Funkce otestuje zdali je string decimalni cislo. Vraci 1 pokud je 0 pokud ne.
+*/
+int is_int(char *string)
+{
+    int i = 0;
+    while(string[i] != '\0')
+    {
+        if(string[i] > 47 && string[i] < 58)
+            i++;
+
+        else
+            return 0;
+    }
+
+    return 1;
+}
+
+/*
+*   Vraci absolutni hodnotu cisla.
+*/
+double abs_val(double number)
+{
+    return number > 0 ? number : -1*number;
+}
+
+/*
+*   Vlastni funkce my_log, vraci vysledek s presnosti na 8 platnych cislic, s co nejmene iteracema.
+*/
+
+double mycf_log(double x)
+{
+    /*(1+z)/(1-z) = x => z = (x-1)/(x+1)*/
+
+    if(x == INFINITY)
+        return INFINITY;
+
+
+    double z = (x - 1)/(x + 1);
+    double ans = 1, ans1 = 10, ans2 = 20;
+    int n = 1, i;
+
+    do
+    {
+
+        ans2 = ans1;
+        ans1 = ans;
+        ans = 1;
+        for (i = n; i > 0 ; i--) /*cyklus pro urceny pocet iteraci*/
+        {
+            ans = (2*i - 1) - ((i*i*z*z) / ans);
+            if(isinf(i*i*z*z) && isinf(ans))
+                return NAN;
+        }
+        n*=2;
+
+    }while(num_comp(ans,ans1,ans2));
+    /*Testuji zde i rozdil dvou prechozich, protoze nekdy se stane (treba pro log 0.2)
+    *se stane, ze ans je 1 a proto je rozdil ans1 - ans == 0 a vyskocilo by se z cyklu.
+    */
+
+    return (2*z) / ans;
+
+}
+
+/*
+*   Vlastni funkce my_log, vraci vysledek s presnosti na 8 platnych cislic, s co nejmene iteracema.
+*/
+
+double my_log(double x)
+{
+    /* 1 - X = A => X = 1 - A, KDE /A JE ZAKLAD*/
+
+    double ans = 0, ans1 = 10;
+    double a = 1 - x;
+    double upper = 1;
+
+    if(x == INFINITY)
+        return INFINITY;
+
+
+    if (x > 0 && x < 1)
+        for (unsigned int i = 1; num_comp(ans, ans1, ans1) ; i++) /*cyklus pro urceny pocet iteraci*/
+        {
+            ans1 = ans;
+            upper *= a;
+            if(isinf(upper))
+            	return INFINITY;
+            ans = ans - upper / i;
+        }
+    else
+        for (unsigned int i = 1; num_comp(ans, ans1, ans1) ; i++) /*cyklus pro urceny pocet iteraci*/
+        {
+            ans1 = ans;
+            upper *= (x - 1) / x;
+            if(isinf(upper))
+            	return INFINITY;
+            ans += upper / i;
+        }
+
+
+    return ans;
+
+}
+
+/*
+*   Moje unkce pocitajici mocninu cisla x s exponentem
+*   y. Pocita ji na presnost 6ti platnych cislic a pouziva zretezeny
+*   zlomek pro vypocet logaritmu.
+*/
+double my_pow(double x, double y)
+{
+
+    if(x == 0)
+        return 0;
+
+    if(x == INFINITY)
+        return INFINITY;
+
+    if(x < 0)
+        return NAN;
+
+    double ans = 1, fac_num = 1,ans2 = 0;
+    double log_x = my_log(x), upper = 1;
+
+    unsigned int i;
+
+    for (i = 1; num_comp(ans, ans2, ans2); i++)
+    {
+        ans2 = ans;
+        fac_num *= i;
+        upper *= y * log_x;
+        if(isinf(upper))
+            return INFINITY;
+
+        ans +=  upper / fac_num;
+    }
+
+    return ans;
+}
+
+
+/*
+*   Funkce porovna 3 cisla na 7 platnych cislic.
+*   Vraci 0 pokud jsou stejne.
+*/
+int num_comp(double a, double b, double c)
+{
+    char arrayA[16]; /*15 mist, protoze 1.3456789e+9999\0*/
+    char arrayB[16];
+    char arrayC[16];
+
+    int test;
+
+    sprintf(arrayA, "%.7e", a);
+    sprintf(arrayB, "%.7e", b);
+    sprintf(arrayC, "%.7e", c);
+
+    test = strcmp(arrayA,arrayB);
+
+    if(test == 0)
+        test = strcmp(arrayB,arrayC);
+
+    return test == 0 ? 0 : 1;
+}
+
+
+
+
+
+
+
