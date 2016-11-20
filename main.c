@@ -334,7 +334,7 @@ void error(int err_num)
             break;
 
         case NOT_POSITIVE:
-            fprintf(stderr,"Argument X neni kladne cislo.\n");
+            fprintf(stderr,"Argument X neni kladne cislo!\n");
             break;
 
         case IS_NEGATIVE:
