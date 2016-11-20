@@ -340,10 +340,6 @@ void error(int err_num)
         case IS_NEGATIVE:
             fprintf(stderr,"Argument pocet iteraci neni kladne cislo.\n");
             break;
-
-        case NEG_NOT_WHOLE:
-            fprintf(stderr, "Kdyz je zaklad zaporny, exponent musi byt cele cislo!\n");
-            break;
     }
 
     return ;
@@ -393,7 +389,6 @@ double mycf_log(double x)
 
     do
     {
-
         ans2 = ans1;
         ans1 = ans;
         ans = 1;
