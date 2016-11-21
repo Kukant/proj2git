@@ -34,6 +34,7 @@ int is_number(char *s);
 void error(int err_num);
 int is_int(char *string);
 int num_comp(double a, double b, double c);
+void help();
 
 int main(int argc, char *argv[])
 {
@@ -42,7 +43,8 @@ int main(int argc, char *argv[])
     int is_log = 0, is_logx = 0, is_powx = 0;
 
     /*Prace s argumenty programu.*/
-    if(argc < 1)
+    printf("%d",argc);
+    if(argc < 2)
     {
         error(WRONG_ARGS);
         return 1;
@@ -323,26 +325,45 @@ void error(int err_num)
     {
         case WRONG_ARGS:
             fprintf(stderr,"Chybne argumenty, ukonceni programu.\n");
+            help();
             break;
 
         case NEGATIVE_NUM:
             fprintf(stderr,"Argument nemuze byt zaporny.\n");
+            help();
             break;
 
         case NOT_NUM:
             fprintf(stderr,"Argument neni cislo.\n");
+            help();
             break;
 
         case NOT_POSITIVE:
             fprintf(stderr,"Argument X neni kladne cislo!\n");
+            help();
             break;
 
         case IS_NEGATIVE:
             fprintf(stderr,"Argument pocet iteraci neni kladne cislo.\n");
+            help();
             break;
+
     }
 
     return ;
+}
+
+/*
+*   Funkce vypisujici napovedu.
+*/
+void help()
+{
+    fprintf(stderr,"*   Druhy projekt do IZP, iteracni vypocty.\n"
+                    "*   Vytvoril: Tomas Kukan, xkukan00\n"
+                    "*   Verze: 1.0\n"
+                    "*\n"
+                    "*   Popis programu a jeho funkce: https://wis.fit.vutbr.cz/FIT/st/cwk.php?title=IZP:Projekt2&csid=623120&id=11499\n ");
+
 }
 
 /*
