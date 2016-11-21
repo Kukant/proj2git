@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
     int is_log = 0, is_logx = 0, is_powx = 0;
 
     /*Prace s argumenty programu.*/
-    printf("%d",argc);
     if(argc < 2)
     {
         error(WRONG_ARGS);
