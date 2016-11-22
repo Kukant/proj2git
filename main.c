@@ -4,6 +4,7 @@
 *   Verze: 1.0
 *
 *   Popis programu a jeho funkce: https://wis.fit.vutbr.cz/FIT/st/cwk.php?title=IZP:Projekt2&csid=623120&id=11499
+*   Funkce my_pow a my_log se spousti s argumentem --powx nebo --logx.
 **/
 
 #include <stdio.h>
@@ -16,7 +17,6 @@
 #define NOT_NUM 3
 #define NOT_POSITIVE 4
 #define IS_NEGATIVE 5
-#define NEG_NOT_WHOLE 6
 
 /*
 *FUNKCI PROTOTYPY FUNKCI
@@ -32,7 +32,6 @@ double my_pow(double x, double y);
 int is_positive(double number);
 int is_number(char *s);
 void error(int err_num);
-int is_int(char *string);
 int num_comp(double a, double b, double c);
 void help();
 
@@ -40,7 +39,7 @@ int main(int argc, char *argv[])
 {
     double number, exp;
     unsigned int iteration_quantity;
-    int is_log = 0, is_logx = 0, is_powx = 0;
+    int is_log = 0, is_logx = 0, is_powx = 0, test_num;
 
     /*Prace s argumenty programu.*/
     if(argc < 2)
@@ -58,33 +57,26 @@ int main(int argc, char *argv[])
         }
 
         is_log = 1;
-        if(strcmp(argv[1], "--logx") == 0)
+
+        if(strcmp(argv[1], "--logx") == 0) /*Pro pouziti funkce my_log*/
             is_logx = 1;
 
-        if (is_number(argv[2]) && is_positive(atof(argv[2])))
-            number = atof(argv[2]);
+        for(int i = 2; i < 4; i++)
+            if (!is_number(argv[i]))
+            {
+                error(WRONG_ARGS);
+                return 1;
+            }
 
-        else
-        {
-            if (!is_positive(atof(argv[2])))
-                error(NOT_POSITIVE);
-            return 1;
-        }
+        number = atof(argv[2]);
+        iteration_quantity = atoi(argv[3]);
+        test_num = atoi(argv[3]);
 
-        if(!is_number(argv[3]))
-        {
-            error(WRONG_ARGS);
-            return 1;
-        }
-
-        iteration_quantity = atof(argv[3]);
-
-        if(!is_positive(iteration_quantity))
+        if(test_num < 1)
         {
             error(IS_NEGATIVE);
             return 1;
         }
-
     }
 
     else if (strcmp(argv[1], "--pow") == 0 || strcmp(argv[1], "--powx") == 0) /*testovani pokud je na vstupu --pow*/
@@ -95,41 +87,27 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        if(strcmp(argv[1], "--powx") == 0)
+        if(strcmp(argv[1], "--powx") == 0) /*Pro pouziti funkce my_pow*/
             is_powx = 1;
 
-        if(!is_number(argv[2]))
-        {
-            error(WRONG_ARGS);
-            return 1;
-        }
+
+        for(int i = 2; i < 5; i++)
+            if (!is_number(argv[i]))
+            {
+                error(WRONG_ARGS);
+                return 1;
+            }
 
         number = atof(argv[2]);
-
-        if(!is_number(argv[3]))
-        {
-            error(IS_NEGATIVE);
-            return 1;
-        }
-
         exp = atof(argv[3]);
+        iteration_quantity = atoi(argv[4]);
+        test_num = atoi(argv[4]);
 
-        if(!is_number(argv[4]))
-        {
-            error(WRONG_ARGS);
-            return 1;
-        }
-
-        iteration_quantity = atof(argv[4]);
-
-        if(!is_positive(iteration_quantity))
+        if(test_num < 1)
         {
             error(IS_NEGATIVE);
             return 1;
         }
-
-
-
     }
 
     else /*Pokud neni --pow ani --log */
@@ -174,6 +152,12 @@ double taylor_log(double x, unsigned int n)
     if(x == INFINITY)
         return INFINITY;
 
+    else if(x == 0.0)
+        return -INFINITY;
+
+    else if(x < 0.0)
+        return NAN;
+
     double ans = 0;
     double a = 1 - x;
     double upper = 1;
@@ -212,6 +196,12 @@ double cfrac_log(double x, unsigned int n)
     if(x == INFINITY)
         return INFINITY;
 
+    else if(x == 0.0)
+        return -INFINITY;
+
+    else if(x < 0.0)
+        return NAN;
+
     double z = (x - 1)/(x + 1);
     double ans = 1;
 
@@ -234,13 +224,16 @@ double cfrac_log(double x, unsigned int n)
 double taylor_pow(double x, double y, unsigned int n)
 {
 
-    if(x == 0)
+    if(y == 0)
+        return 1;
+
+    else if(x == 0)
         return 0;
 
-    if(x == INFINITY)
+    else if(x == INFINITY)
         return INFINITY;
 
-    if(x < 0)
+    else if(x < 0)
         return NAN;
 
     double ans = 1,fac_num = 1;
@@ -269,13 +262,16 @@ double taylorcf_pow(double x, double y, unsigned int n)
     double ans = 1, fac_num = 1;
     double log_x = cfrac_log(x, n), upper = 1;
 
-    if(x == 0)
+    if(y == 0)
+        return 1;
+
+    else if(x == 0)
         return 0;
 
-    if(x == INFINITY)
+    else if(x == INFINITY)
         return INFINITY;
 
-    if(x < 0)
+    else if(x < 0)
         return NAN;
 
     for (unsigned int i = 1; i < n + 1; i++)
@@ -288,14 +284,6 @@ double taylorcf_pow(double x, double y, unsigned int n)
 
     }
     return ans;
-}
-
-/*
-*   Jestlize je cislo kladne vraci 1 jinak 0;
-*/
-int is_positive(double number)
-{
-    return number > 0 ? 1 : 0;
 }
 
 /*
@@ -362,50 +350,31 @@ void help()
                     "*   Vytvoril: Tomas Kukan, xkukan00\n"
                     "*   Verze: 1.0\n"
                     "*\n"
-                    "*   Popis programu a jeho funkce: https://wis.fit.vutbr.cz/FIT/st/cwk.php?title=IZP:Projekt2&csid=623120&id=11499\n ");
+                    "*   Popis programu a jeho funkce: https://wis.fit.vutbr.cz/FIT/st/cwk.php?title=IZP:Projekt2&csid=623120&id=11499\n "
+                    "*   Funkce my_pow a my_log se spousti s argumentem --powx nebo --logx.\n");
 
 }
 
-/*
-*   Funkce otestuje zdali je string decimalni cislo. Vraci 1 pokud je 0 pokud ne.
-*/
-int is_int(char *string)
-{
-    int i = 0;
-    while(string[i] != '\0')
-    {
-        if(string[i] > 47 && string[i] < 58)
-            i++;
-
-        else
-            return 0;
-    }
-
-    return 1;
-}
-
-/*
-*   Vraci absolutni hodnotu cisla.
-*/
-double abs_val(double number)
-{
-    return number > 0 ? number : -1*number;
-}
 
 /*
 *   Vlastni funkce my_log, vraci vysledek s presnosti na 8 platnych cislic, s co nejmene iteracema.
 */
-
-double mycf_log(double x)
+double my_log(double x)
 {
     /*(1+z)/(1-z) = x => z = (x-1)/(x+1)*/
 
     if(x == INFINITY)
         return INFINITY;
 
+    else if(x == 0.0)
+        return -INFINITY;
+
+    else if(x < 0.0)
+        return NAN;
+
 
     double z = (x - 1)/(x + 1);
-    double ans = 1, ans1 = 10, ans2 = 20;
+    double ans = 0, ans1 = 0, ans2 = 0;
     int n = 1, i;
 
     do
@@ -422,51 +391,11 @@ double mycf_log(double x)
         n*=2;
 
     }while(num_comp(ans,ans1,ans2));
-    /*Testuji zde i rozdil dvou prechozich, protoze nekdy se stane (treba pro log 0.2)
-    *se stane, ze ans je 1 a proto je rozdil ans1 - ans == 0 a vyskocilo by se z cyklu.
+    /*Testuji zde posledni tri posledni, protoze se obcas stane ze posledi 2 cleny jsou naprosto stejne.
+    * (treba pro log 0.2)
     */
 
     return (2*z) / ans;
-
-}
-
-/*
-*   Vlastni funkce my_log, vraci vysledek s presnosti na 8 platnych cislic, s co nejmene iteracema.
-*/
-
-double my_log(double x)
-{
-    /* 1 - X = A => X = 1 - A, KDE /A JE ZAKLAD*/
-
-    double ans = 0, ans1 = 10;
-    double a = 1 - x;
-    double upper = 1;
-
-    if(x == INFINITY)
-        return INFINITY;
-
-
-    if (x > 0 && x < 1)
-        for (unsigned int i = 1; num_comp(ans, ans1, ans1) ; i++) /*cyklus pro urceny pocet iteraci*/
-        {
-            ans1 = ans;
-            upper *= a;
-            if(isinf(upper))
-            	return INFINITY;
-            ans = ans - upper / i;
-        }
-    else
-        for (unsigned int i = 1; num_comp(ans, ans1, ans1) ; i++) /*cyklus pro urceny pocet iteraci*/
-        {
-            ans1 = ans;
-            upper *= (x - 1) / x;
-            if(isinf(upper))
-            	return INFINITY;
-            ans += upper / i;
-        }
-
-
-    return ans;
 
 }
 
@@ -478,13 +407,16 @@ double my_log(double x)
 double my_pow(double x, double y)
 {
 
-    if(x == 0)
+    if(y == 0)
+        return 1;
+
+    else if(x == 0)
         return 0;
 
-    if(x == INFINITY)
+    else if(x == INFINITY)
         return INFINITY;
 
-    if(x < 0)
+    else if(x < 0)
         return NAN;
 
     double ans = 1, fac_num = 1,ans2 = 0;
