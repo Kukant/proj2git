@@ -203,10 +203,10 @@ double cfrac_log(double x, unsigned int n)
         return NAN;
 
     double z = (x - 1)/(x + 1);
-    double ans = 1;
+    double ans = 10;
 
 
-    for (n += 1; n > 0 ;n--) /*cyklus pro urceny pocet iteraci*/
+    for (; n > 0 ;n--) /*cyklus pro urceny pocet iteraci*/
     {
         ans = (2*n - 1) - ((n*n*z*z) / ans);
     }
@@ -274,12 +274,12 @@ double taylorcf_pow(double x, double y, unsigned int n)
     else if(x < 0)
         return NAN;
 
-    for (unsigned int i = 1; i < n + 1; i++)
+    for (unsigned int i = 1; i < n ; i++)
     {
         fac_num *= i;
         upper *= y * log_x;
         ans +=  upper / fac_num;
-	if(isinf(upper))
+        if(isinf(upper))
             return INFINITY;
 
     }
