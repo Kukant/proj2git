@@ -175,10 +175,7 @@ double taylor_log(double x, unsigned int n)
             	return INFINITY;
             ans += upper / i;
         }
-
-
     return ans;
-
 }
 
 /*
@@ -203,9 +200,7 @@ double cfrac_log(double x, unsigned int n)
     }
 
     return (2*z) / ans;
-
 }
-
 
 /*
 *   Funkce pocitajici mocninu cisla x s exponentem
@@ -245,7 +240,7 @@ double taylorcf_pow(double x, double y, unsigned int n)
     if(test_pow(x, y) != -1)
         return test_pow(x, y);
 
-    for (unsigned int i = 1; i < n ; i++)
+    for (unsigned int i = 1; i <= n ; i++)
     {
         fac_num *= i;
         upper *= y * log_x;
@@ -360,7 +355,6 @@ double my_log(double x)
     */
 
     return (2*z) / ans;
-
 }
 
 /*
