@@ -34,12 +34,14 @@ int is_number(char *s);
 void error(int err_num);
 int num_comp(double a, double b, double c);
 void help();
+double test_pow(double x, double y);
 
 int main(int argc, char *argv[])
 {
     double number, exp;
     unsigned int iteration_quantity;
-    int is_log = 0, is_logx = 0, is_powx = 0, test_num;
+    int is_log = 0, is_logx = 0, is_powx = 0;
+    double test_num;
 
     /*Prace s argumenty programu.*/
     if(argc < 2)
@@ -70,7 +72,9 @@ int main(int argc, char *argv[])
 
         number = atof(argv[2]);
         iteration_quantity = atoi(argv[3]);
-        test_num = atoi(argv[3]);
+        test_num = atof(argv[3]);
+
+
 
         if(test_num < 1)
         {
@@ -101,7 +105,7 @@ int main(int argc, char *argv[])
         number = atof(argv[2]);
         exp = atof(argv[3]);
         iteration_quantity = atoi(argv[4]);
-        test_num = atoi(argv[4]);
+        test_num = atof(argv[4]);
 
         if(test_num < 1)
         {
@@ -223,18 +227,11 @@ double cfrac_log(double x, unsigned int n)
 */
 double taylor_pow(double x, double y, unsigned int n)
 {
-
-    if(y == 0)
-        return 1;
-
-    else if(x == 0)
-        return 0;
-
-    else if(x == INFINITY)
-        return INFINITY;
-
-    else if(x < 0)
+    if(x <= 0)
         return NAN;
+
+    if(test_pow(x, y) != -1)
+        return test_pow(x, y);
 
     double ans = 1,fac_num = 1;
     double log_x = taylor_log(x, n);
@@ -262,17 +259,11 @@ double taylorcf_pow(double x, double y, unsigned int n)
     double ans = 1, fac_num = 1;
     double log_x = cfrac_log(x, n), upper = 1;
 
-    if(y == 0)
-        return 1;
-
-    else if(x == 0)
-        return 0;
-
-    else if(x == INFINITY)
-        return INFINITY;
-
-    else if(x < 0)
+    if(x <= 0)
         return NAN;
+
+    if(test_pow(x, y) != -1)
+        return test_pow(x, y);
 
     for (unsigned int i = 1; i < n ; i++)
     {
@@ -406,6 +397,8 @@ double my_log(double x)
 */
 double my_pow(double x, double y)
 {
+    if(x == 1)
+        return 1;
 
     if(y == 0)
         return 1;
@@ -463,7 +456,62 @@ int num_comp(double a, double b, double c)
     return test == 0 ? 0 : 1;
 }
 
+/*
+*   Funkce testuje promenne x a y u funkce pow.
+*/
 
+double test_pow(double x, double y)
+{
+    if(x == 1.0)
+        return 1;
+
+    else if(y == 0)
+        return 1;
+
+    else if(x == 0 && ((int)y % 2) == 1 && y > 0)
+        return 0;
+
+    else if(x == 0 && y > 0 && ((int)y % 2) != 1)
+    {
+        return 0;
+    }
+
+    //else if(x == -1 && (y == INFINITY || y == -INFINITY))
+
+    else if(fabs(x) < 1 && y == -INFINITY)
+        return INFINITYů
+
+    else if(fabs(x) > 1 && y == -INFINITY)
+        return 0;
+
+    else if(fabs(x) < 1 && y == INFINITY)
+        return 0;
+
+    else if(fabs(x) > 1 &&  y == INFINITY)
+        return INFINITY;
+
+    else if(x == -INFINITY && ((int)y % 2) == 1 && y < 0)
+        return 0;
+
+    else if(x == -INFINITY && y < 0 && ((int)y % 2) != 1)
+        return 0;
+
+    else if(x == -INFINITY && ((int)y % 2) == 1 && y > 0)
+        return -INFINITY;
+
+    else if(x == -INFINITY && y > 0 && ((int)y % 2) != 1)
+        return INFINITY;
+
+    else if(x == INFINITY && y < 0)
+        return 0;
+
+    else if(x == INFINITY && y > 0)
+        return INFINITY;
+
+    else
+        return -1;
+
+}
 
 
 
