@@ -35,6 +35,7 @@ void error(int err_num);
 int num_comp(double a, double b, double c);
 void help();
 double test_pow(double x, double y);
+double test_log(double x);
 
 int main(int argc, char *argv[])
 {
@@ -73,8 +74,6 @@ int main(int argc, char *argv[])
         number = atof(argv[2]);
         iteration_quantity = atoi(argv[3]);
         test_num = atof(argv[3]);
-
-
 
         if(test_num < 1)
         {
@@ -153,14 +152,8 @@ double taylor_log(double x, unsigned int n)
 {
     /* 1 - X = A => X = 1 - A, KDE /A JE ZAKLAD*/
 
-    if(x == INFINITY)
-        return INFINITY;
-
-    else if(x == 0.0)
-        return -INFINITY;
-
-    else if(x < 0.0)
-        return NAN;
+    if(test_log(x) != -1)
+        return test_log(x);
 
     double ans = 0;
     double a = 1 - x;
@@ -197,14 +190,8 @@ double cfrac_log(double x, unsigned int n)
 {
     /*(1+z)/(1-z) = x => z = (x-1)/(x+1)*/
 
-    if(x == INFINITY)
-        return INFINITY;
-
-    else if(x == 0.0)
-        return -INFINITY;
-
-    else if(x < 0.0)
-        return NAN;
+    if(test_log(x) != -1)
+        return test_log(x);
 
     double z = (x - 1)/(x + 1);
     double ans = 10;
@@ -227,9 +214,6 @@ double cfrac_log(double x, unsigned int n)
 */
 double taylor_pow(double x, double y, unsigned int n)
 {
-    if(x <= 0)
-        return NAN;
-
     if(test_pow(x, y) != -1)
         return test_pow(x, y);
 
@@ -246,7 +230,6 @@ double taylor_pow(double x, double y, unsigned int n)
             return INFINITY;
     }
     return  ans;
-
 }
 
 /*
@@ -258,9 +241,6 @@ double taylorcf_pow(double x, double y, unsigned int n)
 {
     double ans = 1, fac_num = 1;
     double log_x = cfrac_log(x, n), upper = 1;
-
-    if(x <= 0)
-        return NAN;
 
     if(test_pow(x, y) != -1)
         return test_pow(x, y);
@@ -354,15 +334,8 @@ double my_log(double x)
 {
     /*(1+z)/(1-z) = x => z = (x-1)/(x+1)*/
 
-    if(x == INFINITY)
-        return INFINITY;
-
-    else if(x == 0.0)
-        return -INFINITY;
-
-    else if(x < 0.0)
-        return NAN;
-
+    if(test_log(x) != -1)
+        return test_log(x);
 
     double z = (x - 1)/(x + 1);
     double ans = 0, ans1 = 0, ans2 = 0;
@@ -397,20 +370,8 @@ double my_log(double x)
 */
 double my_pow(double x, double y)
 {
-    if(x == 1)
-        return 1;
-
-    if(y == 0)
-        return 1;
-
-    else if(x == 0)
-        return 0;
-
-    else if(x == INFINITY)
-        return INFINITY;
-
-    else if(x < 0)
-        return NAN;
+    if(test_pow(x, y) != -1)
+        return test_pow(x, y);
 
     double ans = 1, fac_num = 1,ans2 = 0;
     double log_x = my_log(x), upper = 1;
@@ -457,11 +418,15 @@ int num_comp(double a, double b, double c)
 }
 
 /*
-*   Funkce testuje promenne x a y u funkce pow.
+*   Funkce testuje promenne x a y u funkce pow pro specificke vstupy dle funkce pow().
+*   Vraci hodnotu ans, pokud je nektera z pominek pravda, jinak vraci -1;
 */
 
 double test_pow(double x, double y)
 {
+    if(x <= 0)
+        return NAN;
+
     if(x == 1.0)
         return 1;
 
@@ -479,7 +444,7 @@ double test_pow(double x, double y)
     //else if(x == -1 && (y == INFINITY || y == -INFINITY))
 
     else if(fabs(x) < 1 && y == -INFINITY)
-        return INFINITYů
+        return INFINITY;
 
     else if(fabs(x) > 1 && y == -INFINITY)
         return 0;
@@ -507,6 +472,27 @@ double test_pow(double x, double y)
 
     else if(x == INFINITY && y > 0)
         return INFINITY;
+
+    else
+        return -1;
+}
+
+double test_log(double x)
+{
+    if(x == NAN)
+        return NAN;
+
+    else if(x == 0)
+        return -INFINITY;
+
+    else if(x == INFINITY)
+        return INFINITY;
+
+    else if(x == 1)
+        return 0;
+
+    else if(x < 0)
+        return NAN;
 
     else
         return -1;
